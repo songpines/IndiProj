@@ -112,6 +112,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3668891651264753288, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: unitId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668891651264753288, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: faction
       value: 0
       objectReference: {fileID: 0}
@@ -145,7 +149,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7016529814954647879, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: m_Interpolate
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7801794363091665786, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: m_Name
@@ -182,7 +186,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerMax: 1
   damageAmount: 5
-  attackDistance: 5
+  attackDistance: 10
   bulletSpawnPositionTransform: {fileID: 1494203493190248476}
 --- !u!4 &4845832171459564148 stripped
 Transform:

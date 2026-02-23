@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -13,6 +14,8 @@ public class UnitSelectionManager : MonoBehaviour
 
     public event EventHandler OnSelectionAreaStart;
     public event EventHandler OnSelectionAreaEnd;
+
+    public event EventHandler UISelectionPanelIsOccupiedOnChanged;
 
     private Vector2 selectionStartMousePosition;
 
@@ -60,6 +63,8 @@ public class UnitSelectionManager : MonoBehaviour
         {
             selectionStartMousePosition = Input.mousePosition;
             OnSelectionAreaStart?.Invoke(this, EventArgs.Empty);
+
+            //UISelectionPanelIsOccupiedOnChanged?.Invoke(this, EventArgs.Empty);
         }
 
         if (Input.GetMouseButtonUp(0))
@@ -79,9 +84,8 @@ public class UnitSelectionManager : MonoBehaviour
                 Selected selected = selectedArray[i];
                 selected.onDeselected = true;
                 entityManager.SetComponentData<Selected>(entityArray[i], selected);
-
             }
-
+            
 
             //범위 내 유닛 선택
             entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<LocalTransform, Unit>().WithPresent<Selected>().Build(entityManager);
@@ -144,16 +148,56 @@ public class UnitSelectionManager : MonoBehaviour
             }
 
             OnSelectionAreaEnd?.Invoke(this, EventArgs.Empty);
+
+            //페널 초기화를 위한
+            UISelectionPanelIsOccupiedOnChanged?.Invoke(this, EventArgs.Empty);
         }
 
 
         if (Input.GetMouseButtonDown(1))
         {
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            EntityQuery entityQuery;
             Vector3 mouseWorldPosition = MouseWorldPosition.Instance.GetPosition();
 
-            //우클릭 장소로 선택된 유닛들 이동
-            EntityQuery entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<MoveOverride>().Build(entityManager);
+            //적 유닛이라면 target으로 설정
+            EntityQuery physcisEntityQuery = entityManager.CreateEntityQuery(typeof(PhysicsWorldSingleton));
+            PhysicsWorldSingleton physicsWorldSingleton = physcisEntityQuery.GetSingleton<PhysicsWorldSingleton>();
+            CollisionWorld collisionWorld = physicsWorldSingleton.CollisionWorld;
+            UnityEngine.Ray cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            RaycastInput raycastInput = new RaycastInput
+            {
+                Start = cameraRay.GetPoint(0f),
+                End = cameraRay.GetPoint(9999f),
+                Filter = new CollisionFilter
+                {
+                    BelongsTo = ~0u,
+                    CollidesWith = 1u << GameAssets.UNITS_LAYER,
+                    GroupIndex = 0
+                }
+            };
+            if (collisionWorld.CastRay(raycastInput, out Unity.Physics.RaycastHit raycastHit))
+            {
+                if (entityManager.HasComponent<Enemy>(raycastHit.Entity))
+                {
+                    //적을 target으로 바로 설정
+                    entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<Target>().Build(entityManager);
+                    NativeArray<Target> targetArray = entityQuery.ToComponentDataArray<Target>(Allocator.Temp);
+                    for(int i = 0; i < targetArray.Length; i++)
+                    {
+                        Target target = targetArray[i];
+                        target.targetEntity = raycastHit.Entity;
+                        targetArray[i] = target;
+                    }
+                    entityQuery.CopyFromComponentDataArray(targetArray);
+                    Debug.Log($"target은 {raycastHit.Entity}다");
+                    return;
+                }
+            }
+
+            //적 유닛이 아니라면 우클릭 장소로 선택된 유닛들 이동
+            entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<MoveOverride>().Build(entityManager);
 
 
             NativeArray<Entity> entityArray = entityQuery.ToEntityArray(Allocator.Temp);

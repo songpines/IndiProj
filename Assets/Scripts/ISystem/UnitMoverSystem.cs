@@ -8,6 +8,11 @@ partial struct UnitMoverSystem : ISystem
 {
     public const float REACHED_DISTANCESQ = 0.2f;
 
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<UnitMover>();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

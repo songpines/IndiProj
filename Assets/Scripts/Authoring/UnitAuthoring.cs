@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class UnitAuthoring : MonoBehaviour
 {
+
+    public int unitId;
     public Faction faction;
     public class Baker : Baker<UnitAuthoring>
     {
@@ -12,6 +14,7 @@ public class UnitAuthoring : MonoBehaviour
             AddComponent(entity, new Unit
             {
                 faction = authoring.faction,
+                unitId = authoring.unitId
             });
         }
     }
@@ -21,6 +24,7 @@ public class UnitAuthoring : MonoBehaviour
 
 public struct Unit : IComponentData
 {
+    public int unitId;
     public Faction faction;
 }
 

@@ -8,6 +8,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1168614871076448555, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
+      propertyPath: healthAmount
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1168614871076448555, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
+      propertyPath: healthAmountMax
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1932326953318399331, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
+      propertyPath: unitId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2178326596665865127, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
       propertyPath: range
       value: 5
@@ -59,6 +71,10 @@ PrefabInstance:
     - target: {fileID: 4935397668458713233, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
       propertyPath: m_Name
       value: BaseEnemyMeleeUnit
+      objectReference: {fileID: 0}
+    - target: {fileID: 8458479770995257487, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

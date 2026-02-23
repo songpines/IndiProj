@@ -5,6 +5,10 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct TargetResetSystem : ISystem
 {
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Target>();
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
