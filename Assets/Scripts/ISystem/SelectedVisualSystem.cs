@@ -6,7 +6,11 @@ using Unity.Transforms;
 [UpdateBefore(typeof(ResetEventSystem))]
 partial struct SelectedVisualSystem : ISystem
 {
-
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Target>();
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)

@@ -6,10 +6,17 @@ using Unity.Transforms;
 partial struct MeleeAttackSystem : ISystem
 {
     [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<MeleeAttack>();
+    }
+
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach((RefRO<LocalTransform> localTransform, RefRW<MeleeAttack> meleeAttack, RefRO<Target> target, RefRW<UnitMover> unitMover) 
-            in SystemAPI.Query<RefRO<LocalTransform>, RefRW<MeleeAttack>, RefRO<Target>, RefRW<UnitMover>>().WithDisabled<MoveOverride>())
+            in SystemAPI.Query<RefRO<LocalTransform>, RefRW<MeleeAttack>, RefRO<Target>, RefRW<UnitMover>>().WithDisabled<MoveOverride>().WithDisabled<ResourceGathering>())
         {
             if(target.ValueRO.targetEntity == Entity.Null || !SystemAPI.HasComponent<LocalTransform>(target.ValueRO.targetEntity))
             {

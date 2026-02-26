@@ -3,6 +3,7 @@ using UnityEngine;
 public class MainMenuManager : MonoBehaviour
 {
     public GameObject settingMenu;
+    public GameObject mainMenu;
 
 
 
@@ -21,6 +22,7 @@ public class MainMenuManager : MonoBehaviour
     public void SettingButton()
     {
         settingMenu.SetActive(!settingMenu.activeSelf);
+        mainMenu.SetActive(!settingMenu.activeSelf);
     }
 
     //exit ¹öÆ°

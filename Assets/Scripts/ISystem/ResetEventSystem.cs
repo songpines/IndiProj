@@ -7,6 +7,12 @@ using Unity.Entities;
 partial struct ResetEventSystem : ISystem
 {
     [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Selected>();
+    }
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach(RefRW<Selected> selected in

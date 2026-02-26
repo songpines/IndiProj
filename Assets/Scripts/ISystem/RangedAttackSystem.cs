@@ -7,6 +7,12 @@ using Unity.Transforms;
 
 partial struct RangedAttackSystem : ISystem
 {
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<RangedAttack>();
+    }
+
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
@@ -17,7 +23,7 @@ partial struct RangedAttackSystem : ISystem
             RefRW<UnitMover> unitMover,
             RefRW<RangedAttack> rangedAttack, 
             RefRO<Target> target) 
-            in SystemAPI.Query<RefRW<LocalTransform>, RefRW<UnitMover>,RefRW<RangedAttack>, RefRO<Target>>().WithDisabled<MoveOverride>()){
+            in SystemAPI.Query<RefRW<LocalTransform>, RefRW<UnitMover>,RefRW<RangedAttack>, RefRO<Target>>().WithDisabled<MoveOverride>().WithDisabled<ResourceGathering>()){
 
             if (target.ValueRO.targetEntity == Entity.Null || !SystemAPI.HasComponent<LocalTransform>(target.ValueRO.targetEntity))
             {

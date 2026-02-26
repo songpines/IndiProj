@@ -4,7 +4,13 @@ using Unity.Transforms;
 
 partial struct EnemySpawnerSystem : ISystem
 {
-    
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<EnemySpawner>();
+    }
+
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

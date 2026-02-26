@@ -18,7 +18,10 @@ public class BuildingManager : MonoBehaviour
     EntityQuery entityQuery;
     Entity buildingPreviewEntity;
 
+    //
     private bool isBuidlingMode;
+
+    private BuildingType buildingType;
 
     //ºôµù ´Ü°è
     public enum BuildingModeProgress {
@@ -43,16 +46,25 @@ public class BuildingManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            OnBuildingModeEnter?.Invoke(this, EventArgs.Empty);
-            isBuidlingMode = true;
-        }
-
         if (isBuidlingMode)
         {
             BuildingModeHandling();
         }
+    }
+
+
+    //buildingmode enter
+    public void EnterBuildingMode(BuildingType buildingType)
+    {
+        OnBuildingModeEnter?.Invoke(this, EventArgs.Empty);
+        isBuidlingMode = true;
+        this.buildingType = buildingType;
+    }
+
+    //Ã¶°Å¸ðµå
+    public void EnterDeconstructionMode()
+    {
+
     }
 
     public void BuildingModeHandling()
@@ -101,16 +113,12 @@ public class BuildingManager : MonoBehaviour
         Deselect();
 
         //preview »ý¼º
-        buildingPreviewEntity = entityManager.Instantiate(entitiesReferencecs.skullBuildingPreview);
+        buildingPreviewEntity = entityManager.Instantiate(entitiesReferencecs.GetBuildingPreview(buildingType));
         entityManager.SetComponentData<LocalTransform>(buildingPreviewEntity, new LocalTransform
         {
             Position = Vector3.zero,//MouseWorldPosition.Instance.GetPosition(),
             Rotation = Quaternion.identity,
-            Scale = 10f
         });
-
-        
-        
     }
 
     public void BuildingModelPreviewSetLocation()
@@ -140,13 +148,19 @@ public class BuildingManager : MonoBehaviour
         //ºôµù ¼³Ä¡
         entityQuery = entityManager.CreateEntityQuery(typeof(EntitiesReferences));
         EntitiesReferences entitiesReferencecs = entityQuery.GetSingleton<EntitiesReferences>();
-        Entity buildingEntity = entityManager.Instantiate(entitiesReferencecs.skullBuilding);
+        Entity buildingEntity = entityManager.Instantiate(entitiesReferencecs.GetBuilding(buildingType));
         entityManager.SetComponentData<LocalTransform>(buildingEntity, new LocalTransform
         {
             Position = MouseWorldPosition.Instance.GetPosition(),
             Rotation = Quaternion.identity,
-            Scale = 10f
         });
+
+
+        
+        //ºôµù ¼³Ä¡ true
+        Building building = entityManager.GetComponentData<Building>(buildingEntity);
+        building.hasBuilt = true;
+        entityManager.SetComponentData<Building>(buildingEntity, building);
 
         //ºôµù ¸ðµå Á¾·á
         OnBuildingModeExit?.Invoke(this, EventArgs.Empty);

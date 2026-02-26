@@ -79,6 +79,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1785024633564922565, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceGatherTime
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1785024633564922565, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceDeliverAmount
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 2306402048702822259, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.018
@@ -134,6 +142,18 @@ PrefabInstance:
     - target: {fileID: 4038679573007481536, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: healthAmountMax
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092545694500104876, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092545694500104876, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceGatherTime
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092545694500104876, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceDeliverAmount
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6257130067255108241, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: m_IsActive

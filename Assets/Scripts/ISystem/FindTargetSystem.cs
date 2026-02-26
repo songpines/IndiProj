@@ -8,6 +8,14 @@ partial struct FindTargetSystem : ISystem
 {
 
     [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<FindTarget>();
+    }
+
+
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         PhysicsWorldSingleton physicsWorldSingleton = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
@@ -24,7 +32,7 @@ partial struct FindTargetSystem : ISystem
             RefRW<FindTarget> findTarget,
             RefRW<Target> target
             ) in SystemAPI.Query<RefRO<LocalTransform>, 
-            RefRW<FindTarget>, RefRW<Target>>())
+            RefRW<FindTarget>, RefRW<Target>>().WithDisabled<ResourceGathering>()) //자원 채취 시에는 적을 찾지 않음
         {
             findTarget.ValueRW.timer -= SystemAPI.Time.DeltaTime;
             if(findTarget.ValueRO.timer > 0f)

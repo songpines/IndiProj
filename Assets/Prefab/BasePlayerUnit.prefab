@@ -150,7 +150,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b36e9d7da9c18489989e9e7cbc3a9845, type: 2}
+  - {fileID: 2100000, guid: 1d8414fbf9630f34b91a0ec6bd2b8a31, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -268,7 +268,8 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 83bc2d0eb6c171d4cbff36c4544c53fb, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3454123177798106456, guid: c843755ce46145d49985e632a9d60626, type: 3}
     m_RemovedGameObjects:
     - {fileID: 5378527446147196152, guid: c843755ce46145d49985e632a9d60626, type: 3}
     m_AddedGameObjects:
@@ -285,6 +286,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 373008091034677095, guid: c843755ce46145d49985e632a9d60626, type: 3}
       insertIndex: -1
       addedObject: {fileID: 777398800842659753}
+    - targetCorrespondingSourceObject: {fileID: 373008091034677095, guid: c843755ce46145d49985e632a9d60626, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1785024633564922565}
     - targetCorrespondingSourceObject: {fileID: 373008091034677095, guid: c843755ce46145d49985e632a9d60626, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2183998308106963022}
@@ -328,6 +332,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualGameObject: {fileID: 3048208855328121240}
   showScale: 1
+--- !u!114 &1785024633564922565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7801794363091665786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e97c974b9f82494397ae2eb42ee0017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceDeliverAmount: 0
+  resourceGatherTime: 0
 --- !u!136 &2183998308106963022
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -374,7 +392,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 1
   m_Constraints: 116
   m_CollisionDetection: 0

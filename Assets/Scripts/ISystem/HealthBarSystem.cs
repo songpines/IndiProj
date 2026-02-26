@@ -8,6 +8,14 @@ using UnityEngine;
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct HealthBarSystem : ISystem
 {
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<HealthBar>();
+    }
+
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

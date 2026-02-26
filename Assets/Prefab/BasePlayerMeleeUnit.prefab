@@ -68,6 +68,14 @@ PrefabInstance:
       propertyPath: showScale
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1785024633564922565, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceGatherTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1785024633564922565, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceDeliverAmount
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 2183998308106963022, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: m_Height
       value: 2
@@ -107,6 +115,14 @@ PrefabInstance:
     - target: {fileID: 4038679573007481536, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: healthAmountMax
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092545694500104876, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceGatherTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4092545694500104876, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
+      propertyPath: resourceDeliverAmount
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 6888119126329280745, guid: ba1fbcd9aafa66347a33f156b05d9a21, type: 3}
       propertyPath: speed

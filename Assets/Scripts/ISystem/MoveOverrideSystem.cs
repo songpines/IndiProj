@@ -16,6 +16,12 @@ partial struct MoveOverrideSystem : ISystem
     //}
 
     [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<MoveOverride>();
+    }
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach ((RefRO<LocalTransform> localTransform, RefRW<UnitMover> unitMover, RefRW<MoveOverride> moveOverride, EnabledRefRW<MoveOverride> moveOverrideEnabled) in 

@@ -85,8 +85,8 @@ public class UnitSelectionManager : MonoBehaviour
                 selected.onDeselected = true;
                 entityManager.SetComponentData<Selected>(entityArray[i], selected);
             }
-            
 
+            #region 범위 내 유닛 선택
             //범위 내 유닛 선택
             entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<LocalTransform, Unit>().WithPresent<Selected>().Build(entityManager);
 
@@ -152,15 +152,18 @@ public class UnitSelectionManager : MonoBehaviour
             //페널 초기화를 위한
             UISelectionPanelIsOccupiedOnChanged?.Invoke(this, EventArgs.Empty);
         }
+        #endregion
 
 
+        #region 선택 후 좌클릭
         if (Input.GetMouseButtonDown(1))
         {
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             EntityQuery entityQuery;
             Vector3 mouseWorldPosition = MouseWorldPosition.Instance.GetPosition();
 
-            //적 유닛이라면 target으로 설정
+
+            
             EntityQuery physcisEntityQuery = entityManager.CreateEntityQuery(typeof(PhysicsWorldSingleton));
             PhysicsWorldSingleton physicsWorldSingleton = physcisEntityQuery.GetSingleton<PhysicsWorldSingleton>();
             CollisionWorld collisionWorld = physicsWorldSingleton.CollisionWorld;
@@ -173,12 +176,18 @@ public class UnitSelectionManager : MonoBehaviour
                 Filter = new CollisionFilter
                 {
                     BelongsTo = ~0u,
-                    CollidesWith = 1u << GameAssets.UNITS_LAYER,
+                    CollidesWith = 1u << GameAssets.UNITS_LAYER | 1u << GameAssets.RESOURCE_LAYER,
                     GroupIndex = 0
                 }
             };
+
+            //자원 채취하고 있다면 멈춤.
+            entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithAll<ResourceGathering>().Build(entityManager);
+            entityManager.SetComponentEnabled<ResourceGathering>(entityQuery, false);
+
             if (collisionWorld.CastRay(raycastInput, out Unity.Physics.RaycastHit raycastHit))
             {
+                #region 적 유닛이라면 target으로 설정
                 if (entityManager.HasComponent<Enemy>(raycastHit.Entity))
                 {
                     //적을 target으로 바로 설정
@@ -194,9 +203,37 @@ public class UnitSelectionManager : MonoBehaviour
                     Debug.Log($"target은 {raycastHit.Entity}다");
                     return;
                 }
+                #endregion
+
+                #region 자원이라면
+                if (entityManager.HasComponent<Resource>(raycastHit.Entity))
+                {
+                    //자원 채취 시작
+                    entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<ResourceGathering>().Build(entityManager);
+                    entityManager.SetComponentEnabled<ResourceGathering>(entityQuery, true);
+                    NativeArray<ResourceGathering> resourceGatheringArray = entityQuery.ToComponentDataArray<ResourceGathering>(Allocator.Temp);
+                    for(int i = 0; i < resourceGatheringArray.Length; i++)
+                    {
+                        ResourceGathering r = resourceGatheringArray[i];
+                        r.resourceEntity = raycastHit.Entity;
+                        //다시 initialize
+                        r.hasInitialized = false;
+                        resourceGatheringArray[i] = r;
+                    }
+                    entityQuery.CopyFromComponentDataArray(resourceGatheringArray);
+                    return;
+                }
+                #endregion
             }
 
-            //적 유닛이 아니라면 우클릭 장소로 선택된 유닛들 이동
+
+
+            
+
+           
+
+
+            #region 적/자원 아니라면 우클릭 장소로 선택된 유닛들 이동
             entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<MoveOverride>().Build(entityManager);
 
 
@@ -213,7 +250,12 @@ public class UnitSelectionManager : MonoBehaviour
                 entityManager.SetComponentEnabled<MoveOverride>(entityArray[i], true);
             }
             entityQuery.CopyFromComponentDataArray(moveOverrideArray);
+            #endregion
+
+            
         }
+
+        #endregion
     }
     public Rect GetSelectionAreaRect()
     {
@@ -253,7 +295,7 @@ public class UnitSelectionManager : MonoBehaviour
             return positionArray;
         }
 
-        float ringSize = 1f;
+        float ringSize = 2f;
         int ring = 0;
         int positionIndex = 1;
 

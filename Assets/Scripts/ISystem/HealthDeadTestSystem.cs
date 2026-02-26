@@ -5,6 +5,12 @@ using Unity.Entities;
 partial struct HealthDeadTestSystem : ISystem
 {
 
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Health>();
+    }
+
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)

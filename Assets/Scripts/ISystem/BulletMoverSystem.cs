@@ -6,7 +6,11 @@ using UnityEngine;
 
 partial struct BulletMoverSystem : ISystem
 {
-
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Bullet>();
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)

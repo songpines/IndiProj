@@ -3,19 +3,31 @@ using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
 using Unity.Transforms;
 
-//À¯´ÖÀÌ ¿òÁ÷ÀÌ°í ³­ ÈÄ¿¡ ¾÷µ¥ÀÌÆ®
+//ìœ ë‹›ì´ ì›€ì§ì´ê³  ë‚œ í›„ì— ì—…ë°ì´íŠ¸
 [UpdateAfter(typeof(UnitMoverSystem))]
 partial struct GridUpdateSystem : ISystem
 {
-    //±×¸®µå ¾÷µ¥ÀÌÆ®
+    private BufferLookup<OccupyingGrid> occupyingGrid;
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<GridConfig>();
+        state.RequireForUpdate<OccupyingGrid>();
+        occupyingGrid = new BufferLookup<OccupyingGrid>();
+    }
+
+
+    //ê·¸ë¦¬ë“œ ì—…ë°ì´íŠ¸
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        occupyingGrid.Update(ref state);
         var gridConfigSingleton = SystemAPI.GetSingleton<GridConfig>();
         var gridElementBufferSingleton = SystemAPI.GetSingletonBuffer<GridCellElement>();
         foreach(RefRO<LocalTransform> localTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithPresent<Unit>())
         {
-            //¸¸¾à grid ¿µ¿ª ¹Û¿¡ ÀÖÀ¸¸é ÀÏ´Ü continue
+            //ë§Œì•½ grid ì˜ì—­ ë°–ì— ìˆìœ¼ë©´ ì¼ë‹¨ continue
             if (!gridConfigSingleton.IsInGrid(gridConfigSingleton.WorldToGrid(localTransform.ValueRO.Position))) continue;
 
 
@@ -25,7 +37,35 @@ partial struct GridUpdateSystem : ISystem
             gridBuffer.isOccupied = true;
             gridElementBufferSingleton[index] = gridBuffer;
 
-            //endsimulationÀÇ resetsystem¿¡¼­ reset
+            //endsimulationì˜ resetsystemì—ì„œ reset
+        }
+
+        //ë¹Œë”© ê·¸ë¦¬ë“œ ì²´í¬
+        foreach((RefRO<Building> building, Entity entity) in SystemAPI.Query<RefRO<Building>>().WithEntityAccess())
+        {
+            if (building.ValueRO.hasBuilt)
+            {
+                if (!occupyingGrid[entity].IsEmpty)
+                {
+                    for (int i = 0; i < occupyingGrid[entity].Length; i++)
+                    {
+                        GridCellElement cell = gridElementBufferSingleton[gridConfigSingleton.GetGridIndex(occupyingGrid[entity][i].occupyingGrid)];
+                        cell.isOccupied = true;
+                        gridElementBufferSingleton[gridConfigSingleton.GetGridIndex(occupyingGrid[entity][i].occupyingGrid)] = cell;
+                    }
+                }
+            }
+            else if(!occupyingGrid[entity].IsEmpty)
+            {
+                for (int i = 0; i < occupyingGrid[entity].Length; i++)
+                {
+                    GridCellElement cell = gridElementBufferSingleton[gridConfigSingleton.GetGridIndex(occupyingGrid[entity][i].occupyingGrid)];
+                    cell.isOccupied = false;
+                    gridElementBufferSingleton[gridConfigSingleton.GetGridIndex(occupyingGrid[entity][i].occupyingGrid)] = cell;
+                }
+                occupyingGrid[entity].Clear();
+            }
+            
         }
     }
 }

@@ -22,7 +22,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2178326596665865127, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
       propertyPath: range
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2178326596665865127, guid: e0b26a7db1f91824680fcc08b37a3847, type: 3}
       propertyPath: timerMax

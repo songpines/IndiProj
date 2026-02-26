@@ -28,4 +28,5 @@ public struct UnitMover : IComponentData
     public float speed;
     public float rotationSpeed;
     public float3 targetPosition;
+
 }
