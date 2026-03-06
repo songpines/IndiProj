@@ -51,10 +51,17 @@ partial struct ResourceGatheringDeliveringSystem : ISystem
                 return;
             }
 
+            if (resourceGathering.ValueRO.resourceEntity == Entity.Null)
+            {
+                enabledResourceDelivering.ValueRW = false;
+                return;
+            }
+
             //moveoverride 실행
             if (enabledMoverOverride.ValueRO == false) enabledMoverOverride.ValueRW = true;
 
             float3 targetPosition = buildingBaseLocalTransform[resourceGathering.ValueRO.baseEntity].Position;
+
             moveOverride.ValueRW.targetPosition = targetPosition;
 
             //기지 반지름
@@ -77,9 +84,7 @@ partial struct ResourceGatheringDeliveringSystem : ISystem
                     resourceManage.ValueRW.CoralResource += resourceGathering.ValueRO.resourceDeliverAmount;
 
                 }
-                UnityEngine.Debug.Log($"{resourceGathering.ValueRO.resourceType} 자원획득 : {resourceGathering.ValueRO.resourceDeliverAmount}");
-                UnityEngine.Debug.Log(resourceManage.ValueRO.StoneResource);
-                UnityEngine.Debug.Log(resourceManage.ValueRO.CoralResource);
+
                 //자원 리셋
                 resourceGathering.ValueRW.isCarrying = false;
                 //다시 자원으로

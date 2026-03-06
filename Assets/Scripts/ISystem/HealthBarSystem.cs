@@ -8,29 +8,35 @@ using UnityEngine;
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct HealthBarSystem : ISystem
 {
-
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<HealthBar>();
+        
     }
 
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        Vector3 cameraForward = Vector3.zero;
-        if(Camera.main != null)
-        {
-            cameraForward = Camera.main.transform.forward;
-        }
+        var cameraTransformForwardSingleton = SystemAPI.GetSingleton<MainCameraTransform>();
+        float3 cameraForward = Vector3.zero;
 
-        foreach((RefRW<LocalTransform> localTransform,RefRO<HealthBar> healthBar) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<HealthBar>>())
+        cameraForward = cameraTransformForwardSingleton.cameraTransform;
+        foreach ((RefRW<LocalTransform> localTransform,RefRO<HealthBar> healthBar) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<HealthBar>>())
         {
             if(localTransform.ValueRW.Scale == 1)
             {
-                LocalTransform parentLocalTransform = SystemAPI.GetComponent<LocalTransform>(healthBar.ValueRO.healthEntity);
-                localTransform.ValueRW.Rotation = parentLocalTransform.InverseTransformRotation(quaternion.LookRotation(cameraForward, math.up()));
+                if(healthBar.ValueRO.healthEntity != Entity.Null)
+                {
+                    LocalTransform parentLocalTransform = SystemAPI.GetComponent<LocalTransform>(healthBar.ValueRO.healthEntity);
+                    localTransform.ValueRW.Rotation = parentLocalTransform.InverseTransformRotation(quaternion.LookRotation(cameraForward, math.up()));
+                }
+                else
+                {
+                    return;
+                }
             }
             
 

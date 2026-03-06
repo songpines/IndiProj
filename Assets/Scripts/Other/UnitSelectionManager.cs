@@ -23,6 +23,8 @@ public class UnitSelectionManager : MonoBehaviour
 
     EntityManager entityManager;
 
+    public Entity selectedBuildingEntity;
+
     private void Awake()
     {
         Instance = this;
@@ -43,6 +45,7 @@ public class UnitSelectionManager : MonoBehaviour
     private void BuildingManager_OnBuildingModeEnter(object sender, EventArgs e)
     {
         isBuildingMode = true;
+        OnSelectionAreaEnd?.Invoke(this, EventArgs.Empty);
     }
 
     private void Update()
@@ -51,6 +54,7 @@ public class UnitSelectionManager : MonoBehaviour
         {
             UnitSelectAndMove();
         }
+  
     }
 
 
@@ -64,6 +68,22 @@ public class UnitSelectionManager : MonoBehaviour
             selectionStartMousePosition = Input.mousePosition;
             OnSelectionAreaStart?.Invoke(this, EventArgs.Empty);
 
+            //선택된 entity들 deselect
+            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            EntityQuery entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().Build(entityManager);
+
+            NativeArray<Entity> entityArray = entityQuery.ToEntityArray(Allocator.Temp);
+            NativeArray<Selected> selectedArray = entityQuery.ToComponentDataArray<Selected>(Allocator.Temp);
+
+            for (int i = 0; i < entityArray.Length; i++)
+            {
+               
+                Selected selected = selectedArray[i];
+                selected.onDeselected = true;
+                entityManager.SetComponentData<Selected>(entityArray[i], selected);
+                entityManager.SetComponentEnabled<Selected>(entityArray[i], false);
+            }
+
             //UISelectionPanelIsOccupiedOnChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -72,23 +92,11 @@ public class UnitSelectionManager : MonoBehaviour
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             Vector2 selectionEndMousePosition = Input.mousePosition;
 
-            //선택된 entity들 deselect
-            EntityQuery entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().Build(entityManager);
-
-            NativeArray<Entity> entityArray = entityQuery.ToEntityArray(Allocator.Temp);
-            NativeArray<Selected> selectedArray = entityQuery.ToComponentDataArray<Selected>(Allocator.Temp);
-
-            for (int i = 0; i < entityArray.Length; i++)
-            {
-                entityManager.SetComponentEnabled<Selected>(entityArray[i], false);
-                Selected selected = selectedArray[i];
-                selected.onDeselected = true;
-                entityManager.SetComponentData<Selected>(entityArray[i], selected);
-            }
+            NativeArray<Entity> entityArray;
 
             #region 범위 내 유닛 선택
             //범위 내 유닛 선택
-            entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<LocalTransform, Unit>().WithPresent<Selected>().Build(entityManager);
+            EntityQuery entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<LocalTransform,Unit>().WithPresent<Selected>().WithAbsent<BaseBuilding>().Build(entityManager);
 
             Rect selectionAreaRect = GetSelectionAreaRect();
             float selectionAreaSize = selectionAreaRect.width + selectionAreaRect.height;
@@ -114,6 +122,8 @@ public class UnitSelectionManager : MonoBehaviour
                         entityManager.SetComponentData(entityArray[i], selected);
                     }
                 }
+
+                UIManager.Instance.panelChange(Panels.unitSelection);
             }
             else
             {
@@ -130,19 +140,31 @@ public class UnitSelectionManager : MonoBehaviour
                     Filter = new CollisionFilter
                     {
                         BelongsTo = ~0u,
-                        CollidesWith = 1u << GameAssets.UNITS_LAYER,
+                        CollidesWith = 1u << GameAssets.UNITS_LAYER | 1u << GameAssets.BUILDING_LAYER,
                         GroupIndex = 0
                     }
                 };
                 if (collisionWorld.CastRay(raycastInput, out Unity.Physics.RaycastHit raycastHit))
                 {
-                    if (entityManager.HasComponent<Unit>(raycastHit.Entity) && entityManager.HasComponent<Selected>(raycastHit.Entity))
+                    //base 빌딩이라면
+                    if (entityManager.HasComponent<BaseBuilding>(raycastHit.Entity) && entityManager.HasComponent<Selected>(raycastHit.Entity))
                     {
+                        selectedBuildingEntity = raycastHit.Entity;
+                        entityManager.SetComponentEnabled<Selected>(raycastHit.Entity, true);
+                        Selected selected = entityManager.GetComponentData<Selected>(raycastHit.Entity);
+                        selected.onSelected = true;
+                        entityManager.SetComponentData(raycastHit.Entity, selected);
+                        UIManager.Instance.panelChange(Panels.buildingSelected);
+                    }
+                    else if (entityManager.HasComponent<Unit>(raycastHit.Entity) && entityManager.HasComponent<Selected>(raycastHit.Entity))
+                    {
+                        //유닛이라면
                         //hit a unit
                         entityManager.SetComponentEnabled<Selected>(raycastHit.Entity, true);
                         Selected selected = entityManager.GetComponentData<Selected>(raycastHit.Entity);
                         selected.onSelected = true;
                         entityManager.SetComponentData(raycastHit.Entity, selected);
+                        UIManager.Instance.panelChange(Panels.unitSelection);
                     }
                 }
             }
@@ -163,7 +185,16 @@ public class UnitSelectionManager : MonoBehaviour
             Vector3 mouseWorldPosition = MouseWorldPosition.Instance.GetPosition();
 
 
-            
+            //자원 채취하고 있다면 멈춤
+            EntityQuery NentityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().Build(entityManager);
+            NativeArray<Entity> entities = NentityQuery.ToEntityArray(Allocator.Temp);
+            for(int i = 0; i < entities.Length; i++)
+            {
+                if (entityManager.HasComponent<ResourceGathering>(entities[i])){
+                    entityManager.SetComponentEnabled<ResourceGathering>(entities[i], false);
+                }
+            }
+
             EntityQuery physcisEntityQuery = entityManager.CreateEntityQuery(typeof(PhysicsWorldSingleton));
             PhysicsWorldSingleton physicsWorldSingleton = physcisEntityQuery.GetSingleton<PhysicsWorldSingleton>();
             CollisionWorld collisionWorld = physicsWorldSingleton.CollisionWorld;
@@ -181,26 +212,30 @@ public class UnitSelectionManager : MonoBehaviour
                 }
             };
 
-            //자원 채취하고 있다면 멈춤.
-            entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithAll<ResourceGathering>().Build(entityManager);
-            entityManager.SetComponentEnabled<ResourceGathering>(entityQuery, false);
+            
 
             if (collisionWorld.CastRay(raycastInput, out Unity.Physics.RaycastHit raycastHit))
             {
+                
                 #region 적 유닛이라면 target으로 설정
                 if (entityManager.HasComponent<Enemy>(raycastHit.Entity))
                 {
                     //적을 target으로 바로 설정
-                    entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<Target>().Build(entityManager);
-                    NativeArray<Target> targetArray = entityQuery.ToComponentDataArray<Target>(Allocator.Temp);
-                    for(int i = 0; i < targetArray.Length; i++)
+                    entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().Build(entityManager);
+
+                    NativeArray<Entity> rentities = entityQuery.ToEntityArray(Allocator.Temp);
+                    for (int i = 0; i < rentities.Length; i++)
                     {
-                        Target target = targetArray[i];
-                        target.targetEntity = raycastHit.Entity;
-                        targetArray[i] = target;
+                        if (entityManager.HasComponent<Target>(rentities[i]))
+                        {
+                            Target r = new Target
+                            {
+                                targetEntity = raycastHit.Entity,
+                            };
+                            entityManager.SetComponentData<Target>(rentities[i], r);
+                        }
                     }
-                    entityQuery.CopyFromComponentDataArray(targetArray);
-                    Debug.Log($"target은 {raycastHit.Entity}다");
+
                     return;
                 }
                 #endregion
@@ -209,33 +244,30 @@ public class UnitSelectionManager : MonoBehaviour
                 if (entityManager.HasComponent<Resource>(raycastHit.Entity))
                 {
                     //자원 채취 시작
-                    entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<ResourceGathering>().Build(entityManager);
-                    entityManager.SetComponentEnabled<ResourceGathering>(entityQuery, true);
-                    NativeArray<ResourceGathering> resourceGatheringArray = entityQuery.ToComponentDataArray<ResourceGathering>(Allocator.Temp);
-                    for(int i = 0; i < resourceGatheringArray.Length; i++)
+                    entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().Build(entityManager);
+                    NativeArray<Entity> rentities = entityQuery.ToEntityArray(Allocator.Temp);
+                    for(int i = 0; i < rentities.Length; i++)
                     {
-                        ResourceGathering r = resourceGatheringArray[i];
-                        r.resourceEntity = raycastHit.Entity;
-                        //다시 initialize
-                        r.hasInitialized = false;
-                        resourceGatheringArray[i] = r;
+                        if (entityManager.HasComponent<ResourceGathering>(rentities[i]))
+                        {
+                            ResourceGathering r = entityManager.GetComponentData<ResourceGathering>(rentities[i]);
+                            r.resourceEntity = raycastHit.Entity;
+                            //다시 initialize
+                            r.hasInitialized = false;
+    
+                            entityManager.SetComponentEnabled<ResourceGathering>(rentities[i], true);
+                            entityManager.SetComponentData<ResourceGathering>(rentities[i], r);
+                        }
                     }
-                    entityQuery.CopyFromComponentDataArray(resourceGatheringArray);
                     return;
                 }
                 #endregion
             }
 
 
-
-            
-
-           
-
-
             #region 적/자원 아니라면 우클릭 장소로 선택된 유닛들 이동
-            entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<MoveOverride>().Build(entityManager);
 
+            entityQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Selected>().WithPresent<MoveOverride>().Build(entityManager);
 
             NativeArray<Entity> entityArray = entityQuery.ToEntityArray(Allocator.Temp);
             NativeArray<MoveOverride> moveOverrideArray = entityQuery.ToComponentDataArray<MoveOverride>(Allocator.Temp);
@@ -250,9 +282,11 @@ public class UnitSelectionManager : MonoBehaviour
                 entityManager.SetComponentEnabled<MoveOverride>(entityArray[i], true);
             }
             entityQuery.CopyFromComponentDataArray(moveOverrideArray);
+
+
             #endregion
 
-            
+
         }
 
         #endregion

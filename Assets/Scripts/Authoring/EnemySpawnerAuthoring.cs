@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class EnemySpawnerAuthoring : MonoBehaviour
 {
-
+    public GameObject enemyToSpawn;
+    public int maxNumber;
     public float timerMax;
     public float randomWalkingDistanceMin;
     public float randomWalkingDistanceMax;
@@ -18,6 +19,8 @@ public class EnemySpawnerAuthoring : MonoBehaviour
                 timerMax = authoring.timerMax,
                 randomWalkingDistanceMin = authoring.randomWalkingDistanceMin,
                 randomWalkingDistanceMax = authoring.randomWalkingDistanceMax,
+                maxNumber = authoring.maxNumber,
+                enemyToSpawn = GetEntity(authoring.enemyToSpawn, TransformUsageFlags.Dynamic),
             });
         }
     }
@@ -25,8 +28,11 @@ public class EnemySpawnerAuthoring : MonoBehaviour
 }
 
 
-public struct EnemySpawner : IComponentData
+public struct EnemySpawner : IComponentData, IEnableableComponent
 {
+    public Entity enemyToSpawn;
+    public int currentNumber;
+    public int maxNumber;
     public float timer;
     public float timerMax;
     public float randomWalkingDistanceMin;

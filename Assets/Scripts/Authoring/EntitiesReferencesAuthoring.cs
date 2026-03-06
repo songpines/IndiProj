@@ -15,6 +15,11 @@ public class EntitiesReferencesAuthoring : MonoBehaviour
     public GameObject wall;
     public GameObject wallPreview;
 
+    //À¯´Ö
+    //°Ç¹°
+    public GameObject Kowang;
+    public GameObject Memetes;
+
     public class Baker : Baker<EntitiesReferencesAuthoring>
     {
         public override void Bake(EntitiesReferencesAuthoring authoring)
@@ -28,6 +33,8 @@ public class EntitiesReferencesAuthoring : MonoBehaviour
                 skullBuildingPreview = GetEntity(authoring.skullBuildingPreview, TransformUsageFlags.Dynamic),
                 wall = GetEntity(authoring.wall, TransformUsageFlags.Dynamic),
                 wallPreview = GetEntity(authoring.wallPreview, TransformUsageFlags.Dynamic),
+                Kowang = GetEntity(authoring.Kowang, TransformUsageFlags.Dynamic),
+                Memetes = GetEntity(authoring.Memetes, TransformUsageFlags.Dynamic),
             });
         }
     }
@@ -45,6 +52,10 @@ public struct EntitiesReferences : IComponentData
 
     public Entity wall;
     public Entity wallPreview;
+
+    //À¯´Ö
+    public Entity Kowang;
+    public Entity Memetes;
 
     public Entity GetBuildingPreview(BuildingType buildingType)
     {
@@ -68,6 +79,19 @@ public struct EntitiesReferences : IComponentData
         else if (buildingType == BuildingType.Wall)
         {
             return wall;
+        }
+        return Entity.Null;
+    }
+
+    public Entity GetUnit(ProductionType productionType)
+    {
+        if (productionType == ProductionType.Kowang)
+        {
+            return Kowang;
+        }
+        else if (productionType == ProductionType.Memetes)
+        {
+            return Memetes;
         }
         return Entity.Null;
     }

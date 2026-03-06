@@ -16,7 +16,7 @@ partial class ResourceManagerSystemBase : SystemBase
     {
         foreach(RefRW<ResourceManage> resourceManage in SystemAPI.Query<RefRW<ResourceManage>>().WithChangeFilter<ResourceManage>())
         {
-            UnityEngine.Debug.Log("리소스 업데이트");
+            
 
             ResourceManager.Instance.Stone = resourceManage.ValueRO.StoneResource;
             ResourceManager.Instance.Coral = resourceManage.ValueRO.CoralResource;

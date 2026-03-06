@@ -26,20 +26,6 @@ partial struct ResetEventSystem : ISystem
         {
             health.ValueRW.onHealthChanged = false;
         }
-
-        //그리드 리셋
-        var gridBufferSingleton = SystemAPI.GetSingletonBuffer<GridCellElement>();
-        for(int i = 0; i < gridBufferSingleton.Length; i++)
-        {
-            if(!gridBufferSingleton[i].isOccupied)
-            {
-                continue;
-            }
-            var buffer = gridBufferSingleton[i];
-            //UnityEngine.Debug.Log(i);
-            buffer.isOccupied = false;
-            gridBufferSingleton[i] = buffer;
-        }
     }
 
 }

@@ -28,7 +28,7 @@ partial class UISelectedPanelUpdateSystem : SystemBase
         //선택된 상태에서만 업데이트 or 선택된 첫 프레임에만
         if (!selectedUnitQuery.IsEmpty && queryNum != selectedUnitQuery.CalculateEntityCount())
         {
-            UnityEngine.Debug.Log("업데이트된 여기");
+
             NativeArray<Unit> changedSelectedList = selectedUnitQuery.ToComponentDataArray<Unit>(Allocator.Temp);
             NativeArray<Entity> changedSelectedListEntity = selectedUnitQuery.ToEntityArray(Allocator.Temp);
             int[] changedSelectedUnitId = new int[uISelectedViewPanelData.Value.defaultUnitSelectionNumber];
@@ -49,7 +49,7 @@ partial class UISelectedPanelUpdateSystem : SystemBase
             if (uISelectedViewPanelData.Value.isOccupied)
             {
                 uISelectedViewPanelData.Value.Clear();
-                UnityEngine.Debug.Log("리셋");
+
             }
             
             return;
@@ -67,7 +67,7 @@ partial class UISelectedPanelUpdateSystem : SystemBase
             selectedUnitId[i] = selectedList[i].unitId;
             selectedUnitEntityIndex[i] = selectedListEntity[i].Index;
         }
-        UnityEngine.Debug.Log("여기실행");
+
         uISelectedViewPanelData.Value.SetSelectedPanel(selectedUnitId);
         
 

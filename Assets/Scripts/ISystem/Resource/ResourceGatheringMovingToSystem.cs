@@ -21,24 +21,40 @@ partial struct ResourceGatheringMovingToSystem : ISystem
         resourceLocalPosition.Update(ref state);
         resources.Update(ref state);
 
-        foreach ((EnabledRefRW<ResourceMovingTo> enabledResourceMovingTo,
+        foreach ((EnabledRefRW<ResourceGathering> enabledResourceGathering,
+            EnabledRefRW<ResourceMovingTo> enabledResourceMovingTo,
             EnabledRefRW<MoveOverride> enabledMoveOverride,
             EnabledRefRW < ResourceGatheringOnProgress > enabledResourceGatheringOnProgress,
             RefRO <ResourceGathering> resourceGathering,
             RefRO<LocalTransform> localTransform,
             RefRW<MoveOverride> moveOverride) in
-            SystemAPI.Query<EnabledRefRW<ResourceMovingTo>, EnabledRefRW<MoveOverride>, 
+            SystemAPI.Query< EnabledRefRW < ResourceGathering > ,EnabledRefRW<ResourceMovingTo>, EnabledRefRW<MoveOverride>, 
             EnabledRefRW<ResourceGatheringOnProgress>,RefRO<ResourceGathering>, RefRO<LocalTransform>,RefRW <MoveOverride>>().
             WithPresent<MoveOverride>().WithPresent<ResourceGatheringOnProgress>())
         {
-            if (resourceGathering.ValueRO.resourceEntity == Entity.Null) return;
+            if (resourceGathering.ValueRO.resourceEntity == Entity.Null)
+            {
+                enabledResourceGathering.ValueRW = false;
+                return;
+            }
+                
 
             //moveoverride 실행
             if (enabledMoveOverride.ValueRO == false) enabledMoveOverride.ValueRW = true;
-
+            float3 targetPosition;
             //경로 설정
-            float3 targetPosition = resourceLocalPosition[resourceGathering.ValueRO.resourceEntity].Position;
-            moveOverride.ValueRW.targetPosition = targetPosition;
+            if (resourceLocalPosition.HasComponent(resourceGathering.ValueRO.resourceEntity))
+            {
+                targetPosition = resourceLocalPosition[resourceGathering.ValueRO.resourceEntity].Position;
+                
+            }
+            else
+            {
+                continue;
+
+            }
+
+                moveOverride.ValueRW.targetPosition = targetPosition;
 
             //자원 반지름
             //TODO const로 GameAsset에서 세팅
@@ -49,7 +65,7 @@ partial struct ResourceGatheringMovingToSystem : ISystem
                 math.distancesq(localTransform.ValueRO.Position.z, targetPosition.z)) <= 
                 (resourceRadius + UnitMoverSystem.REACHED_DISTANCESQ) * (resourceRadius + UnitMoverSystem.REACHED_DISTANCESQ))
             {
-                UnityEngine.Debug.Log("채집시작");
+
                 //채집시작
                 moveOverride.ValueRW.targetPosition = localTransform.ValueRO.Position;
                 enabledResourceGatheringOnProgress.ValueRW = true;

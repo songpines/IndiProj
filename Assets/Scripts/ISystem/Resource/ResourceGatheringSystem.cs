@@ -46,7 +46,7 @@ partial struct ResourceGatheringSystem : ISystem
 
             if (resourceGathering.ValueRO.hasInitialized == false)
             {
-                UnityEngine.Debug.Log("Initialization");
+
                 enabledResourceGatheringInitialization.ValueRW = true;
                 resourceGathering.ValueRW.hasInitialized = true;
             }

@@ -28,12 +28,15 @@ partial struct ResourceGatheringOnProgressSystem : ISystem
             SystemAPI.Query<EnabledRefRW<ResourceGatheringOnProgress>, EnabledRefRW<ResourceDelivering>, 
             RefRW<ResourceGatheringOnProgress>, RefRW<ResourceGathering>, RefRW<UnitMover>, RefRO<LocalTransform>>().WithPresent<ResourceDelivering>())
         {
+
+            if (resourceGathering.ValueRO.resourceEntity == Entity.Null) return;
+            if (!resource.HasComponent(resourceGathering.ValueRO.resourceEntity)) return;
             //TODO 거리에 따른 채집 취소
 
             //채집 완료 시 -> DeliveringOn
             if (resourceGathering.ValueRO.isCarrying)
             {
-                UnityEngine.Debug.Log("채집완료");
+
                 enabledResourceGatheringOnProgress.ValueRW = false;
                 enabledResourceDeliveingOn.ValueRW = true;
 

@@ -25,6 +25,12 @@ public class GridAuthoring : MonoBehaviour
 
             DynamicBuffer<GridCellElement> buffer = AddBuffer<GridCellElement>(entity);
             buffer.ResizeUninitialized(authoring.Width * authoring.Height);
+            for(int i = 0; i < buffer.Length; i++)
+            {
+                GridCellElement cell = buffer[i];
+                cell.isOccupied = false;
+                buffer[i] = cell;
+            }
 
         }
     }

@@ -47,8 +47,8 @@ public partial struct UnitMoverJob : IJobEntity
         float reachedTargetDistanceSq = UnitMoverSystem.REACHED_DISTANCESQ;
 
 
-
-        if(math.lengthsq(moveDirection) <= reachedTargetDistanceSq)
+        
+        if (math.lengthsq(moveDirection) <= reachedTargetDistanceSq)
         {
             //reached the target position
             physicsVelocity.Linear = float3.zero;

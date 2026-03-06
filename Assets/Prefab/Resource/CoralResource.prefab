@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4940954018996799179}
   - component: {fileID: 8153408478584292178}
   - component: {fileID: -8875835334618910370}
+  - component: {fileID: -4999548145007889211}
   m_Layer: 15
   m_Name: CoralResource
   m_TagString: Untagged
@@ -123,3 +124,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceType: 0
   resourceAmount: 1000
+--- !u!114 &-4999548145007889211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8397767771863710208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ee773ceb5a8db140b7ecdfcabd58152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseSize:
+    x: 2
+    y: 2

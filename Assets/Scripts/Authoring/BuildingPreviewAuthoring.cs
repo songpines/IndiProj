@@ -6,6 +6,7 @@ using UnityEngine;
 public class BuildingPreviewAuthoring : MonoBehaviour
 {
     public int2 baseSize;
+
     public class Baker : Baker<BuildingPreviewAuthoring>
     {
         public override void Bake(BuildingPreviewAuthoring authoring)
@@ -26,4 +27,6 @@ public struct BuildingPreview : IComponentData
     public bool canBuildHere;
     //∫£¿ÃΩ∫ :
     public int2 baseSize;
+
+    
 }

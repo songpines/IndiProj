@@ -4,6 +4,7 @@ public class MainMenuManager : MonoBehaviour
 {
     public GameObject settingMenu;
     public GameObject mainMenu;
+    public GameObject guide;
 
 
 
@@ -23,6 +24,11 @@ public class MainMenuManager : MonoBehaviour
     {
         settingMenu.SetActive(!settingMenu.activeSelf);
         mainMenu.SetActive(!settingMenu.activeSelf);
+    }
+
+    public void GuideButton()
+    {
+        guide.SetActive(!guide.activeSelf);
     }
 
     //exit ¹öÆ°

@@ -20,18 +20,18 @@ partial struct OnBuildingModePreviewSetSystem : ISystem
     {
         //preview 생성되었는지 체크
         state.RequireForUpdate<BuildingPreview>();
-        state.RequireForUpdate<OccupyingGrid>();
-        occupyingGrid = new BufferLookup<OccupyingGrid>();
+       // state.RequireForUpdate<OccupyingGrid>();
+        //occupyingGrid = new BufferLookup<OccupyingGrid>();
     }
 
 
     public void OnUpdate(ref SystemState state) 
     {
-        occupyingGrid.Update(ref state);
+        //occupyingGrid.Update(ref state);
         var gridConfigSingleton = SystemAPI.GetSingleton<GridConfig>();
         var gridElementBufferSingleton = SystemAPI.GetSingletonBuffer<GridCellElement>(true);
-        foreach ((RefRW<LocalTransform> localTransform, RefRW<URPMaterialPropertyBaseColor> urp, RefRW<Building> building, RefRW < BuildingPreview> buildingPreview, Entity entity) in 
-            SystemAPI.Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>, RefRW<Building>,RefRW <BuildingPreview>>().WithEntityAccess())
+        foreach ((RefRW<LocalTransform> localTransform, RefRW<URPMaterialPropertyBaseColor> urp, RefRW < BuildingPreview> buildingPreview, Entity entity) in 
+            SystemAPI.Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>, RefRW <BuildingPreview>>().WithEntityAccess())
         {
             //프리뷰 모델이 마우스 위치를 따라다니고 건설 가능한지 판별하는 system
             //TODO mousePosition systembase로
@@ -71,14 +71,14 @@ partial struct OnBuildingModePreviewSetSystem : ISystem
             //베이스가 차지하는 정점
             //왼쪽 아래
             //baseSize.y축 = modelPreviewPosition.z축
-            float3 baseAreaVertexMin= new float3(modelPreviewPosition.x - baseSize.x * cellSize/2, 0f, modelPreviewPosition.z - baseSize.y * cellSize/2);
+            float3 baseAreaVertexMin= new float3(modelPreviewPosition.x - (baseSize.x * cellSize/2), 0f, modelPreviewPosition.z - (baseSize.y * cellSize/2));
 
             int2 baseAreaVertexMinGrid = new int2(gridConfigSingleton.WorldToGrid(baseAreaVertexMin));
 
-            if (!occupyingGrid[entity].IsEmpty)
-            {
-                occupyingGrid[entity].Clear();
-            }
+            //if (!occupyingGrid[entity].IsEmpty)
+            //{
+            //    occupyingGrid[entity].Clear();
+            //}
             //정점들을 그리드 좌표로 변환하여 isoccupied 체크
             for (int i = 0; i < baseSize.x; i++)
             {
@@ -86,17 +86,16 @@ partial struct OnBuildingModePreviewSetSystem : ISystem
                 {
                     
                     int2 currentGrid = new int2(baseAreaVertexMinGrid.x + i, baseAreaVertexMinGrid.y + j);
-                    occupyingGrid[entity].Add(new OccupyingGrid { occupyingGrid = currentGrid });
+                    //occupyingGrid[entity].Add(new OccupyingGrid { occupyingGrid = currentGrid });
                     if (!gridConfigSingleton.IsInGrid(currentGrid))
                     {
-                        UnityEngine.Debug.Log("그리드 밖임.");
-                        UnityEngine.Debug.Log(currentGrid);
+
                         canBuild = false;
                         break;
                     }
                     if (gridElementBufferSingleton[gridConfigSingleton.GetGridIndex(currentGrid)].isOccupied)
                     {
-                        UnityEngine.Debug.Log("그리드 차지함.");
+
                         canBuild = false;
                         break;
                     }
@@ -113,10 +112,10 @@ partial struct OnBuildingModePreviewSetSystem : ISystem
             {
                 urp.ValueRW.Value = new float4(1f, 0f, 0f, 0.3f);
                 buildingPreview.ValueRW.canBuildHere = false;
-                if (!occupyingGrid[entity].IsEmpty)
-                {
-                    occupyingGrid[entity].Clear();
-                }
+                //if (!occupyingGrid[entity].IsEmpty)
+                //{
+                //    occupyingGrid[entity].Clear();
+                //}
             }
             
         }

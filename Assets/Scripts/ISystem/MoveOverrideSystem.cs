@@ -24,9 +24,16 @@ partial struct MoveOverrideSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var gridConfig = SystemAPI.GetSingleton<GridConfig>();
         foreach ((RefRO<LocalTransform> localTransform, RefRW<UnitMover> unitMover, RefRW<MoveOverride> moveOverride, EnabledRefRW<MoveOverride> moveOverrideEnabled) in 
             SystemAPI.Query<RefRO<LocalTransform>, RefRW<UnitMover>, RefRW<MoveOverride>, EnabledRefRW<MoveOverride>>())
         {
+            if (!gridConfig.IsInGrid(gridConfig.WorldToGrid(moveOverride.ValueRO.targetPosition)))
+            {
+                moveOverride.ValueRW.targetPosition = localTransform.ValueRO.Position;
+            }
+
+            
             if(math.distancesq(localTransform.ValueRO.Position, moveOverride.ValueRO.targetPosition) > UnitMoverSystem.REACHED_DISTANCESQ)
             {
                 //µµÂø ¸øÇÔ

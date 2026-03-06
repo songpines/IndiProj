@@ -24,7 +24,7 @@ partial struct MeleeAttackSystem : ISystem
             }
 
             LocalTransform targetLocalTransform = SystemAPI.GetComponent<LocalTransform>(target.ValueRO.targetEntity);
-            float meleeAttackDistanceSq = 2f;
+            float meleeAttackDistanceSq = 7f;
             if(math.distancesq(localTransform.ValueRO.Position, targetLocalTransform.Position) > meleeAttackDistanceSq)
             {
                 //target is too far

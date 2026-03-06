@@ -23,8 +23,16 @@ partial struct HealthDeadTestSystem : ISystem
         {
             if(health.ValueRO.healthAmount <= 0)
             {
-                //unit dead
-                entityCommandBuffer.DestroyEntity(entity);
+                if (SystemAPI.HasComponent<BaseAreaOccupying>(entity))
+                {
+                    SystemAPI.GetComponentRW<BaseAreaOccupying>(entity).ValueRW.isOccupying = false;
+                }
+                else
+                {
+                    //unit dead
+                    entityCommandBuffer.DestroyEntity(entity);
+                }
+                    
             }
         }
     }

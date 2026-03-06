@@ -16,6 +16,8 @@ partial struct RandomWalkingSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var gridConfig = SystemAPI.GetSingleton<GridConfig>();
+
         foreach((RefRW<RandomWalking> randomWalking, 
             RefRW<UnitMover> unitMover,
             RefRO<LocalTransform> localTransform) in
@@ -27,6 +29,7 @@ partial struct RandomWalkingSystem : ISystem
             if(math.distancesq(localTransform.ValueRO.Position, randomWalking.ValueRO.targetPosition) < UnitMoverSystem.REACHED_DISTANCESQ)
             {
                 //µµÂø
+                
                 Random random = randomWalking.ValueRO.random;
 
                 float3 randomDirection = new float3(random.NextFloat(-1f, +1f), 0, random.NextFloat(-1f, +1f));
@@ -36,6 +39,13 @@ partial struct RandomWalkingSystem : ISystem
                     randomWalking.ValueRO.originPosition +
                     randomDirection * random.NextFloat(randomWalking.ValueRO.distanceMin, randomWalking.ValueRO.distanceMax);
 
+                if(randomWalking.ValueRO.targetPosition.x > gridConfig.Width || 
+                    randomWalking.ValueRO.targetPosition.z > gridConfig.Height || 
+                    randomWalking.ValueRO.targetPosition.x < 0 ||
+                    randomWalking.ValueRO.targetPosition.z < 0)
+                {
+                    randomWalking.ValueRW.targetPosition = localTransform.ValueRO.Position;
+                }
                 randomWalking.ValueRW.random = random;
             }
             else

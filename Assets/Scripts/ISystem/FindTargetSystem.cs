@@ -24,7 +24,7 @@ partial struct FindTargetSystem : ISystem
         CollisionFilter targetFilter = new CollisionFilter
         {
             BelongsTo = ~0u,
-            CollidesWith = 1u << GameAssets.UNITS_LAYER,
+            CollidesWith = 1u << GameAssets.UNITS_LAYER | 1u << GameAssets.BUILDING_LAYER,
             GroupIndex = 0
         };
 
@@ -32,7 +32,7 @@ partial struct FindTargetSystem : ISystem
             RefRW<FindTarget> findTarget,
             RefRW<Target> target
             ) in SystemAPI.Query<RefRO<LocalTransform>, 
-            RefRW<FindTarget>, RefRW<Target>>().WithDisabled<ResourceGathering>()) //자원 채취 시에는 적을 찾지 않음
+            RefRW<FindTarget>, RefRW<Target>>().WithNone<ResourceGathering>()) //자원 채취 시에는 적을 찾지 않음
         {
             findTarget.ValueRW.timer -= SystemAPI.Time.DeltaTime;
             if(findTarget.ValueRO.timer > 0f)

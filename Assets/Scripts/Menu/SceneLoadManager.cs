@@ -1,3 +1,4 @@
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,11 +20,18 @@ public class SceneLoadManager : MonoBehaviour
     
     public void LoadPlayScene()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene(PLAY_SCENE);
     }
 
     public void LoadMenuScene()
     {
+        Time.timeScale = 1f;
+        if (World.DefaultGameObjectInjectionWorld != null)
+        {
+            World.DefaultGameObjectInjectionWorld.Dispose();
+            DefaultWorldInitialization.Initialize("Default World", false);
+        }
         SceneManager.LoadScene(MAIN_SCENE);
     }
 
